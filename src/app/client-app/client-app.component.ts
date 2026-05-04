@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, PendingTasks, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ClientAboutComponent } from './components/client-about/client-about.component';
 import { ClientCouponsComponent } from './components/client-coupons/client-coupons.component';
@@ -104,13 +104,15 @@ export class ClientAppComponent implements OnInit {
     private route: ActivatedRoute,
     private clientAppApiService: ClientAppApiService,
     private cdr: ChangeDetectorRef,
+    private pendingTasks: PendingTasks,
   ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.dataset = 'Business';
       this.businessRouteUrl = params.get('slug') ?? '';
-      void this.initializeBusiness();
+      const removeTask = this.pendingTasks.add();
+      this.initializeBusiness().finally(removeTask);
     });
   }
 
