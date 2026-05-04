@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
-import { ClientReview } from '../../models/client-app.models';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+
+type ReviewState = 'idle' | 'loading' | 'success' | 'error';
 
 @Component({
   selector: 'app-client-reviews',
@@ -10,13 +11,46 @@ import { ClientReview } from '../../models/client-app.models';
   styleUrls: ['./client-reviews.component.scss'],
 })
 export class ClientReviewsComponent {
-  @Input() reviews: ClientReview[] = [];
+  @Input() reviews: any[] = [];
+  @Input() reviewState: ReviewState = 'idle';
+  @Input() statusMessage = '';
 
-  readonly ratingRows = [
-    { label: '5*', value: 62 },
-    { label: '4*', value: 15 },
-    { label: '3*', value: 15 },
-    { label: '2*', value: 8 },
-    { label: '1*', value: 0 },
-  ];
+  ngOnInit() {
+    this.normalizeReviewsData();
+  }
+
+  normalizeReviewsData() {
+    if (!Array.isArray(this.reviews)) return;
+
+    this.reviews = this.reviews.map((item: any) => {
+      
+      const data = item.data || item; // fallback if structure varies
+
+      // Normalize App Review Count
+      if (!Array.isArray(data['App Review Count'])) {
+        data['App Review Count'] = data['App Review Count']
+          ? [data['App Review Count']]
+          : [];
+      }
+
+      // Normalize App Rating
+      if (!Array.isArray(data['App Rating'])) {
+        data['App Rating'] = data['App Rating']
+          ? [data['App Rating']]
+          : [];
+      }
+
+      // Normalize App Name
+      if (!Array.isArray(data['App Name'])) {
+        data['App Name'] = data['App Name']
+          ? [data['App Name']]
+          : [];
+      }
+
+      return {
+        ...item,
+        data
+      };
+    });
+  }
 }

@@ -5,13 +5,16 @@
     <p class="k-section-head__sub">AI-optimized Q and A blocks for answer panels and assistant retrieval.</p>
   </div>
 
+  <div class="k-copy--muted" *ngIf="faqState === 'loading'">{{ statusMessage || 'Loading FAQs...' }}</div>
+  <div class="k-copy--muted" *ngIf="faqState === 'error'">{{ statusMessage || 'Unable to load FAQs from API. Showing fallback content.' }}</div>
+
   <div class="k-faq-list">
-    <article class="k-faq-item" *ngFor="let faq of faqs; let i = index" [class.is-open]="openIndex === i">
+    <article class="k-faq-item" *ngFor="let faq of faqs['data']['Question']; let i = index" [class.is-open]="openIndex === i">
       <button type="button" class="k-faq-item__q" (click)="toggle(i)">
-        <span>{{ faq.question }}</span>
+        <span>{{ faq }}</span>
         <strong>{{ openIndex === i ? '-' : '+' }}</strong>
       </button>
-      <div class="k-faq-item__a">{{ faq.answer }}</div>
+      <div class="k-faq-item__a">{{ faqs['data']['Answer'][i] }}</div>
     </article>
   </div>
 </section>

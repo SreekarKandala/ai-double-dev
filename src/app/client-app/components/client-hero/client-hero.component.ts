@@ -22,7 +22,6 @@ export class ClientHeroComponent {
   @Input() currentBusiness: any;
   @Input() totalProducts: number = 0;
   @Input({ required: true }) business!: ClientBusiness;
-  @Input() openStatus = 'Open Now';
   @Output() navigate = new EventEmitter<string>();
   @Output() order = new EventEmitter<void>();
 
@@ -64,7 +63,7 @@ export class ClientHeroComponent {
 
   get formattedCategory(): string {
     const category = this.currentBusiness?.data?.['Business Category'];
-    if (!category || typeof category !== 'string') return '';
+    if (!category || typeof category !== 'string') return ''; // Strip out any ID inside parentheses, e.g., (123xyz)
     return category.replace(/\s*\(.*?\)/g, '').trim();
   }
 

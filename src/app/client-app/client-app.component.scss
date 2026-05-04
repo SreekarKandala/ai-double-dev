@@ -89,7 +89,7 @@
 }
 
 .k-dark-strip h2 {
-  color: #ede4d5;
+  color:#ede4d5;
   margin: 0 0 10px;
   font-family: "Playfair Display", Georgia, serif;
   font-size: clamp(2rem, 4vw, 2.8rem);
@@ -153,6 +153,7 @@
   }
 }
 
+/* Status Cards for Loading and Error States */
 .k-center-content {
   display: flex;
   align-items: center;
@@ -212,3 +213,4 @@
   color: var(--spice);
   margin-bottom: 24px;
 }
+

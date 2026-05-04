@@ -4,21 +4,31 @@
     <h2 class="k-section-head__title">Our <em>Story</em></h2>
   </div>
 
+  <div class="k-copy--muted" *ngIf="aboutState === 'loading'">{{ statusMessage || 'Loading about details...' }}</div>
+  <div class="k-copy--muted" *ngIf="aboutState === 'error'">{{ statusMessage || 'Unable to load about details from API.
+    Showing fallback content.' }}
+  </div>
+
   <div class="k-about__grid">
     <div>
-      <h3 class="k-about__title">{{ business.name }}</h3>
-      <p class="k-about__copy">{{ business.description }}</p>
-      <p class="k-about__copy">{{ business.extendedDescription }}</p>
-
+      <h3 class="k-about__title">{{ aboutRecord.data['Business Name'] }}</h3>
+      <p class="k-about__copy">{{ aboutRecord.data['Primary Offering'] }}</p>
+      <p class="k-about__copy">{{ aboutRecord.data['Core Problem Solved'] }}</p>
       <div class="k-tag-cloud">
-        <span class="k-cloud-tag" *ngFor="let tag of business.tags">
+        <span class="k-cloud-tag" *ngFor="let tag of tags">
           <span class="k-cloud-tag__dot" aria-hidden="true"></span>
           <span class="k-cloud-tag__label">{{ tag }}</span>
         </span>
       </div>
 
+      <div class="k-differentiation">
+        <h1 class="k-about__title">Why {{ aboutRecord.data['Business Name'] }} ?</h1>
+        <h4>{{ aboutRecord.data['Differentiation'] }}</h4>
+      </div>
+
       <div class="k-presence">
-        <div class="k-presence__title">AI Platform Presence (Current GEO Score: {{ business.geoScore }}/100)</div>
+        <div class="k-presence__title">AI Platform Presence (Current GEO Score: {{ business.geoScore }}/100)
+        </div>
         <div class="k-presence__grid">
           <div class="k-presence__item" *ngFor="let score of business.platformScores">
             <span class="k-presence__dot" [style.background]="score.color"></span>
@@ -41,35 +51,19 @@
       <div class="k-info-card">
         <h4>Contact</h4>
         <ul>
-          <li>{{ business.address }}</li>
-          <li>{{ business.phone }}</li>
-          <li>{{ business.email }}</li>
-          <li>{{ business.website }}</li>
-          <li>Price range: {{ business.priceRange }}</li>
+          <li>{{ matchedInstance.data['Street Address'] || formattedLocation }}</li>
+          <li>{{ matchedInstance.data['Phone Number'] }}</li>
+          <li>{{ aboutRecord.data['Business Email'] }}</li>
+          <li>{{ matchedInstance.data['Google Business url'] }}</li>
         </ul>
       </div>
 
       <div class="k-info-card">
         <h4>Opening Hours</h4>
-        <div class="k-hours-row" *ngFor="let hour of business.hours" [class.is-today]="hour.day === todayName">
-          <span>{{ hour.day }}</span>
-          <strong>{{ hour.open }} - {{ hour.close }}</strong>
-        </div>
-      </div>
-
-      <div class="k-info-card">
-        <h4>Order Online</h4>
-        <div class="k-platform-card">
-          <span>DoorDash</span>
-          <small>15-30% commission</small>
-        </div>
-        <div class="k-platform-card">
-          <span>Uber Eats</span>
-          <small>Aggregator ordering</small>
-        </div>
-        <div class="k-platform-card">
-          <span>orders.co</span>
-          <small>Direct ordering route</small>
+        <div class="k-hours-row" *ngFor="let hour of matchedInstance.data['Availabilty Hours']"
+          [class.is-today]="hour === todayName">
+          <span>{{ hour }}</span>
+          <strong>{{ matchedInstance.data['Open'] }} - {{ matchedInstance.data['Close'] }}</strong>
         </div>
       </div>
 
@@ -82,10 +76,9 @@
       <div class="k-info-card">
         <h4>Location</h4>
         <div class="k-map-box">
-          <strong>14856 Metcalf Ave</strong>
-          <span>Overland Park, KS 66223</span>
+          <span>{{matchedInstance.data['Street Address']}}</span>
+          <span>{{formattedLocation}}</span>
         </div>
-        <p class="k-map-note">Parking, patio seating, delivery, pickup, dine-in, and catering are all highlighted in the original experience.</p>
       </div>
     </aside>
   </div>

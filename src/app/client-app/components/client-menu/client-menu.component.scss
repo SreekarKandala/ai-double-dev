@@ -72,32 +72,6 @@
   background: linear-gradient(135deg, var(--spice), #6b1010);
 }
 
-.k-chip-row,
-.k-badge-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.k-chip {
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--cream-2);
-  color: var(--ink-3);
-  cursor: pointer;
-}
-
-.k-chip-row {
-  margin-bottom: 16px;
-}
-
-.k-chip.is-active {
-  background: var(--spice);
-  color: #fff;
-  border-color: var(--spice);
-}
-
 .k-btn {
   border: 0;
   border-radius: 14px;
@@ -138,6 +112,10 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
   gap: 20px;
   align-items: stretch;
+}
+
+.k-menu-grid--single {
+  grid-template-columns: minmax(0, 420px);
 }
 
 .k-menu-card,

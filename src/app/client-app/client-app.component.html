@@ -20,14 +20,14 @@
 
 <div *ngIf="!isCheckingBusiness && businessExists" class="full-page">
   <app-client-nav
-    [currentBusiness]="matchedInstance"
+    [currentBusiness] = "matchedInstance"
     [activeSection]="activeSection"
     (sectionChange)="setActiveSection($event)"
     (order)="openOrder()">
   </app-client-nav>
 
   <app-client-hero
-    [currentBusiness]="matchedInstance"
+    [currentBusiness] = "matchedInstance"
     [business]="business"
     [totalProducts]="menuTotalRecords"
     [openStatus]="openStatus"
@@ -65,16 +65,14 @@
 
     <section [class.k-panel--active]="activeSection === 'products'" class="k-panel">
       <app-client-menu
-        [items]="filteredMenuItems"
-        [categories]="menuCategories"
-        [activeCategory]="activeCategory"
+        [items]="menuItems"
+        [businessName]="currentBusinessName"
         [geoScore]="business.geoScore"
         [menuState]="menuState"
         [statusMessage]="menuStatusMessage"
         [pageNumber]="menuPageNumber"
         [pageSize]="menuPageSize"
         [totalRecords]="menuTotalRecords"
-        (categoryChange)="setActiveCategory($event)"
         (orderItem)="openOrder($event)"
         (orderGeneral)="openOrder()"
         (retryMenu)="loadMenu()"
@@ -99,26 +97,41 @@
     </section>
 
     <section [class.k-panel--active]="activeSection === 'about'" class="k-panel">
-      <app-client-about [business]="business"></app-client-about>
+      <app-client-about
+        [business]="business"
+        [matchedInstance]="matchedInstance"
+        [aboutRecord]="aboutRecord"
+        [aboutState]="aboutState"
+        [statusMessage]="aboutStatusMessage">
+      </app-client-about>
     </section>
 
     <section [class.k-panel--active]="activeSection === 'reviews'" class="k-panel">
-      <app-client-reviews [reviews]="reviews"></app-client-reviews>
+      <app-client-reviews
+        [reviews]="reviews"
+        [reviewState]="reviewState"
+        [statusMessage]="reviewStatusMessage"
+        >
+      </app-client-reviews>
     </section>
 
     <section [class.k-panel--active]="activeSection === 'faq'" class="k-panel">
-      <app-client-faq [faqs]="faqs"></app-client-faq>
+      <app-client-faq
+        [faqs]="faqs"
+        [faqState]="faqState"
+        [statusMessage]="faqStatusMessage">
+      </app-client-faq>
     </section>
 
-    <section [class.k-panel--active]="activeSection === 'mcp'" class="k-panel">
+    <!-- <section [class.k-panel--active]="activeSection === 'mcp'" class="k-panel">
       <app-client-mcp [endpoints]="endpoints" [baseUrl]="baseUrl"></app-client-mcp>
-    </section>
+    </section> -->
   </main>
 
   <section class="k-dark-strip">
     <div class="k-dark-strip__inner">
       <div class="k-dark-strip__eyebrow">Model Context Protocol &middot; AI Double</div>
-      <h2>Kushi's AI-Actionable Endpoints</h2>
+      <h2>{{ currentBusinessName }} AI-Actionable Endpoints</h2>
       <p>Proposed MCP endpoints that make the restaurant discoverable, recommendable, and orderable via major AI assistants.</p>
       <app-client-mcp [endpoints]="endpoints" [baseUrl]="baseUrl"></app-client-mcp>
     </div>
@@ -126,7 +139,7 @@
 
   <footer class="k-footer">
     <div>
-      <strong>{{ business.name }} &middot; Overland Park, KS</strong>
+      <strong>{{ currentBusinessName }} &middot; Overland Park, KS</strong>
       <span>AI Double MCP concept &middot; GEO Score {{ business.geoScore }} -> {{ business.geoPotential }}+</span>
     </div>
     <nav>

@@ -43,17 +43,6 @@ export interface ClientService {
   [key: string]: unknown;
 }
 
-export interface ClientReview {
-  initials: string;
-  name: string;
-  source: string;
-  sourceColor: string;
-  sourceBg: string;
-  avatarColor: string;
-  dateLabel: string;
-  text: string;
-}
-
 export interface ClientFaq {
   question: string;
   answer: string;
@@ -81,7 +70,6 @@ export interface ClientOrderDraft {
   customerEmail: string;
   customerPhone: string;
   deliveryAddress: string;
-  fulfilment: 'pickup' | 'delivery-same' | 'delivery-next';
-  spiceLevel: number;
+  fulfilment: 'pickup' | 'delivery-next';
   quantity: number;
 }

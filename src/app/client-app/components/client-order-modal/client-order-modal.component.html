@@ -10,22 +10,7 @@
         <div class="k-order-preview__icon">🍽️</div>
         <div class="k-order-preview__meta">
           <strong>{{ selectedItem.data['Product Name'] }}</strong>
-          <span>${{ selectedItem.data['Price'] | number : '1.2-2' }}</span>
-        </div>
-      </div>
-
-      <div class="k-field" *ngIf="selectedItem">
-        <label>Spice Level</label>
-        <div class="k-pill-row">
-          <button
-            *ngFor="let spice of spiceLevels"
-            type="button"
-            class="k-pill k-pill--spice"
-            [class.is-active]="draft.spiceLevel === spice.value"
-            (click)="draft.spiceLevel = spice.value">
-            <span>{{ spice.icon }}</span>
-            {{ spice.label }}
-          </button>
+          <span>{{ selectedItem.data['Price'] }}</span>
         </div>
       </div>
 
@@ -35,19 +20,14 @@
           <button type="button" (click)="changeQty(-1)">−</button>
           <strong>{{ draft.quantity }}</strong>
           <button type="button" (click)="changeQty(1)">+</button>
-          <span>${{ total | number : '1.2-2' }}</span>
+          <span>${{ total | number:'1.2-2' }}</span>
         </div>
       </div>
-
       <div class="k-field">
         <label>Fulfilment</label>
         <div class="k-pill-row">
-          <button
-            *ngFor="let option of fulfilmentOptions"
-            type="button"
-            class="k-pill k-pill--fulfilment"
-            [class.is-active]="draft.fulfilment === option.value"
-            (click)="draft.fulfilment = option.value">
+          <button *ngFor="let option of fulfilmentOptions" type="button" class="k-pill k-pill--fulfilment"
+            [class.is-active]="draft.fulfilment === option.value" (click)="draft.fulfilment = option.value">
             <span>{{ option.icon }}</span>
             {{ option.label }}
           </button>

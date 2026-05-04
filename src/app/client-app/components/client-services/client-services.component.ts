@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ClientService } from '../../models/client-app.models';
 
 type ServiceLoadState = 'idle' | 'loading' | 'success' | 'error';
 
@@ -11,7 +12,7 @@ type ServiceLoadState = 'idle' | 'loading' | 'success' | 'error';
   styleUrls: ['./client-services.component.scss'],
 })
 export class ClientServicesComponent {
-  @Input() services: any[] = [];
+  @Input() services: ClientService[] = [];
   @Input() serviceState: ServiceLoadState = 'idle';
   @Input() statusMessage = '';
   @Input() pageNumber = 1;

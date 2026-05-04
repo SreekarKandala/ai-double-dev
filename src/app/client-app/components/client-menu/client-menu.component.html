@@ -7,8 +7,8 @@
 
   <div class="k-banner">
     <div>
-      <h3>GEO Score {{ geoScore }}/100 - Kushi is nearly invisible to AI assistants</h3>
-      <p>AI Double can make the restaurant discoverable, recommendable, and orderable in a structured format.</p>
+      <h3>GEO Score {{ geoScore }}/100 - {{ businessName }} is nearly invisible to AI assistants</h3>
+      <p>AI Double can make your business discoverable, recommendable, and orderable in a structured format.</p>
     </div>
     <button type="button" class="k-btn k-btn--gold k-btn--small" (click)="jumpToMcp.emit()">Fix with AI Double</button>
   </div>
@@ -19,23 +19,6 @@
       <p>Direct AI ordering is positioned here as the next step once the MCP layer goes live.</p>
     </div>
     <button type="button" class="k-btn k-btn--light k-btn--small" (click)="orderGeneral.emit()">Order Now</button>
-  </div>
-
-  <div class="k-chip-row">
-    <button
-      type="button"
-      class="k-chip"
-      [class.is-active]="'all' === activeCategory"
-      (click)="categoryChange.emit('all')">
-      <span>{{ 'All' }}</span>
-    </button>
-    <ng-container *ngFor="let category of categories">
-      <button *ngIf="category" type="button" class="k-chip"
-        [class.is-active]="category === activeCategory"
-        (click)="categoryChange.emit(category)">
-        {{ category }}
-      </button>
-    </ng-container>
   </div>
 
   <div *ngIf="menuState === 'loading'" class="k-menu-status k-info-card">
@@ -53,30 +36,24 @@
     <p>The API returned successfully, but there were no products to display.</p>
   </div>
 
-  <div *ngIf="menuState !== 'loading' && menuState !== 'error' && items.length" class="k-menu-grid">
+  <div
+    *ngIf="menuState !== 'loading' && menuState !== 'error' && items.length"
+    class="k-menu-grid"
+    [class.k-menu-grid--single]="items.length === 1">
     <article class="k-menu-card" *ngFor="let item of items">
       <div class="k-menu-card__head">
         <div class="k-menu-card__icon" [attr.aria-label]="item.data['Product Name'] + ' icon'">{{ foodIconFor(item) }}</div>
-        <div class="k-menu-card__price">${{ item.data['Price']}}</div>
+        <div class="k-menu-card__price">{{ item.data['Price']}}</div>
       </div>
       <div class="k-menu-card__body">
-        <div class="k-menu-card__meta">{{ item.data['Product SubCategory']}}</div>
         <h3>{{ item.data['Product Name'] }}</h3>
-        <div class="k-badge-row">
-          <span *ngIf="item.popular" class="k-badge k-badge--gold">Popular</span>
-          <span *ngIf="item.vegetarian" class="k-badge k-badge--green">Veg</span>
-          <span *ngIf="item.spiceLevel >= 4" class="k-badge k-badge--red">Very Hot</span>
-        </div>
-        <p>{{ item.data['Product Description'] }}</p>
-        <div *ngIf="item.spiceLevel > 0" class="k-spice-row">
-          <span class="k-spice-dot" *ngFor="let level of spiceDots" [class.is-on]="level <= item.spiceLevel"></span>
-        </div>
+        <div *ngIf="item.data['AI Description']?.trim()" class="k-menu-card__meta">{{ item.data['AI Description'] }}</div>
       </div>
       <div class="k-menu-card__foot">
         <span>{{ item.fulfilmentNote || 'Available for order' }}</span>
         <button type="button" class="k-btn k-btn--spice k-btn--small" (click)="orderItem.emit(item)">Add to Order</button>
       </div>
-    </article>
+    </article>  
   </div>
 
   <div *ngIf="menuState !== 'error' && totalRecords > 0" class="k-pagination">

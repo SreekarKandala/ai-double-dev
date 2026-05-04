@@ -2,146 +2,204 @@
   display: block;
 }
 
+.k-mcp-shell {
+  color: #f4efe7;
+}
+
 .k-section-head {
-  margin-bottom: 32px;
+  margin-bottom: 28px;
 }
 
 .k-section-head__eyebrow {
   margin-bottom: 8px;
   font-size: 0.8rem;
-  font-style: italic;
-  color: var(--muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(244, 239, 231, 0.6);
 }
 
 .k-section-head__title {
+  margin: 0;
   font-family: "Playfair Display", Georgia, serif;
   font-size: clamp(2rem, 4vw, 2.7rem);
-  font-weight: 400;
-  margin: 0;
+  font-weight: 500;
+  color: #fff8ed;
 }
 
 .k-section-head__title em {
   font-style: normal;
-  font-weight: 700;
-  color: var(--saffron);
+  color: #f2b35d;
 }
 
 .k-section-head__sub {
-  margin-top: 10px;
+  max-width: 720px;
+  margin: 10px 0 0;
+  color: rgba(244, 239, 231, 0.7);
   line-height: 1.7;
-  color: var(--muted);
 }
 
 .k-mcp-grid {
-  margin-bottom: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 18px;
 }
 
-.k-mcp-card,
-.k-proposed-box {
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  box-shadow: 0 8px 24px rgba(26, 18, 9, 0.06);
+.k-mcp-card {
+  min-width: 0;
+  height: 100%;
+  padding: 22px;
+  border: 1px solid rgba(255, 248, 237, 0.1);
+  border-radius: 26px;
+  background:
+    linear-gradient(180deg, rgba(49, 40, 31, 0.96) 0%, rgba(30, 24, 19, 0.98) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 18px 40px rgba(0, 0, 0, 0.22);
 }
 
-.k-mcp-card,
-.k-proposed-box {
-  padding: 20px;
-}
-
-.k-mcp-card__row {
+.k-mcp-card__header {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 24px;
 }
 
 .k-mcp-card__method {
-  border-radius: 999px;
-  font-size: 0.72rem;
+  flex: 0 0 auto;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(60, 119, 205, 0.22);
+  color: #9dc5ff;
+  font-size: 0.9rem;
   font-weight: 700;
-  padding: 4px 8px;
-  background: rgba(45, 106, 63, 0.14);
-  color: var(--green);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.k-mcp-card__method.is-post {
-  background: rgba(26, 74, 138, 0.14);
-  color: var(--blue);
+.k-mcp-card__url {
+  min-width: 0;
+  flex: 1;
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 248, 237, 0.08);
+  border-radius: 10px;
+  background: rgba(255, 248, 237, 0.05);
+  color: rgba(244, 239, 231, 0.44);
+  font-family: "Fira Code", "Courier New", monospace;
+  font-size: 0.92rem;
+  font-weight: 600;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-all;
 }
 
-.k-mcp-card h3 {
-  margin: 0 0 8px;
-  color: inherit;
-}
-
-.k-mcp-card p {
-  margin: 0;
-}
-
-.k-mcp-card code {
-  font-size: 0.72rem;
-  color: var(--muted);
-}
-
-.k-mcp-param {
-  display: grid;
-  grid-template-columns: auto auto 1fr auto;
-  gap: 8px;
-  align-items: center;
-  padding: 10px 0;
-  border-top: 1px solid var(--border);
-}
-
-.k-mcp-param span,
-.k-mcp-param strong {
-  font-size: 0.74rem;
+.k-mcp-card__title {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
   font-weight: 700;
+  color: #fff7ec;
 }
 
-.k-mcp-param p {
-  margin: 0;
-  font-size: 0.75rem;
+.k-mcp-card__description {
+  margin: 0 0 22px;
+  color: rgba(244, 239, 231, 0.56);
   line-height: 1.5;
 }
 
-.k-mcp-param strong {
-  color: var(--spice);
+.k-mcp-card__params {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
 
-.k-mcp-param small,
-.k-mcp-card__note,
-.k-proposed-box p {
-  color: var(--muted);
+.k-mcp-param {
+  min-width: 0;
 }
 
-.k-proposed-box strong {
-  margin: 0 0 8px;
+.k-mcp-param__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
-:host-context(.k-dark-strip) .k-section-head {
-  display: none;
+.k-mcp-param__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
 }
 
-:host-context(.k-dark-strip) .k-mcp-card,
-:host-context(.k-dark-strip) .k-proposed-box {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(255, 255, 255, 0.08);
-  color: #fff;
+.k-mcp-param__name {
+  color: #9dc5ff;
+  font-family: "Fira Code", "Courier New", monospace;
+  font-size: 0.98rem;
+  font-weight: 700;
 }
 
-:host-context(.k-dark-strip) .k-mcp-card code,
-:host-context(.k-dark-strip) .k-mcp-param small,
-:host-context(.k-dark-strip) .k-mcp-card__note,
-:host-context(.k-dark-strip) .k-proposed-box p {
-  color: rgba(255, 255, 255, 0.52);
+.k-mcp-param__type {
+  color: rgba(244, 239, 231, 0.38);
+  font-size: 0.98rem;
 }
 
-@media (max-width: 768px) {
-  .k-mcp-param {
+.k-mcp-param__required {
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 115, 93, 0.25);
+  border-radius: 8px;
+  background: rgba(111, 37, 24, 0.65);
+  color: #ff7b67;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.k-mcp-param__description {
+  margin: 0;
+  color: rgba(244, 239, 231, 0.48);
+  line-height: 1.55;
+}
+
+.k-mcp-card__note {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 248, 237, 0.08);
+  color: rgba(244, 239, 231, 0.42);
+  line-height: 1.55;
+}
+
+.k-mcp-card__note p {
+  margin: 0;
+}
+
+.k-mcp-card__note-icon {
+  flex: 0 0 auto;
+  opacity: 0.78;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 767px) {
+  .k-mcp-grid {
     grid-template-columns: 1fr;
+  }
+
+  .k-mcp-card {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .k-mcp-card__header,
+  .k-mcp-param__head,
+  .k-mcp-param__meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .k-mcp-card__url {
+    width: 100%;
   }
 }

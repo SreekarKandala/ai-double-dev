@@ -2,7 +2,6 @@ import {
   ClientBusiness,
   ClientFaq,
   ClientMcpEndpoint,
-  ClientReview,
 } from '../models/client-app.models';
 
 export const CLIENT_APP_BUSINESS: ClientBusiness = {
@@ -76,11 +75,11 @@ export const CLIENT_APP_MENU: any[] = [
   { id: 'gulab-jamun', name: 'Gulab Jamun', category: 'Desserts', subcategory: 'Dessert', description: 'Warm milk-solid dumplings soaked in cardamom sugar syrup.', price: 5.49, icon: 'GJ', vegetarian: true, spiceLevel: 0 },
 ];
 
-export const CLIENT_APP_REVIEWS: ClientReview[] = [
-  { initials: 'DC', name: 'DoorDash Customer', source: 'DoorDash', sourceColor: '#e54b22', sourceBg: 'rgba(229,75,34,.12)', avatarColor: '#e54b22', dateLabel: '2 weeks ago', text: 'Fantastic late night Indian spot. The Butter Chicken mild was perfect, the naan was excellent, and the portions felt generous for the price.' },
-  { initials: 'BK', name: 'Yelp User', source: 'Yelp', sourceColor: '#d32323', sourceBg: 'rgba(211,35,35,.12)', avatarColor: '#d32323', dateLabel: '3 weeks ago', text: 'Love this restaurant. Railway Samosa is my safe order, but every entree I have tried has been strong. Chilli Paneer Gravy is a repeat pick.' },
-  { initials: 'TK', name: 'Google Review', source: 'Google', sourceColor: '#4285f4', sourceBg: 'rgba(66,133,244,.12)', avatarColor: '#4285f4', dateLabel: '1 month ago', text: 'The Goat Pepper Fry was super tender and the Garlic Naan was a great rustic complement. Everything arrived hot, fresh, and packed with flavor.' },
-  { initials: 'VS', name: 'Uber Eats Customer', source: 'Uber Eats', sourceColor: '#101828', sourceBg: 'rgba(16,24,40,.12)', avatarColor: '#101828', dateLabel: '1 month ago', text: 'First time here and the food was excellent. Butter chicken, rice, and garlic naan made a full meal, and the savory balance was a positive surprise.' },
+export const CLIENT_APP_REVIEWS: any[] = [
+  { initials: 'DC', name: 'DoorDash Customer', source: 'DoorDash', sourceColor: '#e54b22', sourceBg: 'rgba(229,75,34,.12)', avatarColor: '#e54b22', dateLabel: '2 weeks ago', text: 'Fantastic late night Indian spot. The Butter Chicken mild was perfect, the naan was excellent, and the portions felt generous for the price.', rating: 5 },
+  { initials: 'BK', name: 'Yelp User', source: 'Yelp', sourceColor: '#d32323', sourceBg: 'rgba(211,35,35,.12)', avatarColor: '#d32323', dateLabel: '3 weeks ago', text: 'Love this restaurant. Railway Samosa is my safe order, but every entree I have tried has been strong. Chilli Paneer Gravy is a repeat pick.', rating: 5 },
+  { initials: 'TK', name: 'Google Review', source: 'Google', sourceColor: '#4285f4', sourceBg: 'rgba(66,133,244,.12)', avatarColor: '#4285f4', dateLabel: '1 month ago', text: 'The Goat Pepper Fry was super tender and the Garlic Naan was a great rustic complement. Everything arrived hot, fresh, and packed with flavor.', rating: 5 },
+  { initials: 'VS', name: 'Uber Eats Customer', source: 'Uber Eats', sourceColor: '#101828', sourceBg: 'rgba(16,24,40,.12)', avatarColor: '#101828', dateLabel: '1 month ago', text: 'First time here and the food was excellent. Butter chicken, rice, and garlic naan made a full meal, and the savory balance was a positive surprise.', rating: 5 },
 ];
 
 export const CLIENT_APP_FAQS: ClientFaq[] = [

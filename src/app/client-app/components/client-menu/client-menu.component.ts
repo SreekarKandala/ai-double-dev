@@ -12,15 +12,13 @@ type MenuState = 'idle' | 'loading' | 'success' | 'error';
 })
 export class ClientMenuComponent {
   @Input() items: any[] = [];
-  @Input() categories: string[] = [];
-  @Input() activeCategory = 'all';
+  @Input() businessName: string = '';
   @Input() geoScore = 22;
   @Input() menuState: MenuState = 'idle';
   @Input() statusMessage = '';
   @Input() pageNumber = 1;
   @Input() pageSize = 10;
   @Input() totalRecords = 0;
-  @Output() categoryChange = new EventEmitter<string>();
   @Output() orderItem = new EventEmitter<any>();
   @Output() orderGeneral = new EventEmitter<void>();
   @Output() retryMenu = new EventEmitter<void>();
@@ -30,6 +28,7 @@ export class ClientMenuComponent {
 
   readonly spiceDots = [1, 2, 3, 4, 5];
   readonly pageSizeOptions = [10, 20, 50];
+  categories: string[] = ["Restaurant", "Salon", "Hospital"];
 
   get totalPages(): number {
     return Math.max(1, Math.ceil(this.totalRecords / this.pageSize));
@@ -56,7 +55,17 @@ export class ClientMenuComponent {
     this.pageSizeChange.emit(pageSize);
   }
 
-  foodIconFor(_item: any): string {
-    return '\u{1F37D}️';
+  foodIconFor(): string {
+    if (this.businessName === "Kushi Indian Restaurant") {
+      return '🍽️';
+    }
+    if (this.businessName === "Everybody PT") {
+      return '🏋️';
+    }
+    if (this.businessName === "StyleCo baber shop") {
+      return '✂️';
+    }
+    return '🏪';
   }
 }
+

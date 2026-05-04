@@ -1,5 +1,5 @@
-import { CommonModule, DOCUMENT } from '@angular/common';
-import { ChangeDetectorRef, Component, ElementRef, OnInit, PendingTasks, ViewChild, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ClientAboutComponent } from './components/client-about/client-about.component';
 import { ClientCouponsComponent } from './components/client-coupons/client-coupons.component';
@@ -12,14 +12,19 @@ import { ClientOrderModalComponent } from './components/client-order-modal/clien
 import { ClientReviewsComponent } from './components/client-reviews/client-reviews.component';
 import { ClientServicesComponent } from './components/client-services/client-services.component';
 import { ClientStatsRibbonComponent } from './components/client-stats-ribbon/client-stats-ribbon.component';
-import { CLIENT_APP_BUSINESS, CLIENT_APP_FAQS, CLIENT_APP_MCP_ENDPOINTS, CLIENT_APP_REVIEWS } from './data/client-app.data';
-import { ClientBusiness, ClientOrderDraft, ClientService } from './models/client-app.models';
-import { ClientAppApiService } from './services/client-app-api.service';
+import { CLIENT_APP_BUSINESS, CLIENT_APP_FAQS } from './data/client-app.data';
+import { ClientBusiness, ClientOrderDraft } from './models/client-app.models';
+import { ClientAppApiService, ClientRawApiResponse } from './services/client-app-api.service';
 
 type PanelId = 'services' | 'products' | 'coupons' | 'about' | 'reviews' | 'faq' | 'mcp';
 type MenuLoadState = 'idle' | 'loading' | 'success' | 'error';
 type CouponLoadState = 'idle' | 'loading' | 'success' | 'error';
 type ServiceLoadState = 'idle' | 'loading' | 'success' | 'error';
+type AboutLoadState = 'idle' | 'loading' | 'success' | 'error';
+type ReviewLoadState = 'idle' | 'loading' | 'success' | 'error';
+type FaqLoadState = 'idle' | 'loading' | 'success' | 'error';
+type ApiLoadState = 'idle' | 'loading' | 'success' | 'error';
+
 
 @Component({
   selector: 'app-client-app',
@@ -42,20 +47,17 @@ type ServiceLoadState = 'idle' | 'loading' | 'success' | 'error';
   styleUrls: ['./client-app.component.scss'],
 })
 export class ClientAppComponent implements OnInit {
-  readonly reviews = CLIENT_APP_REVIEWS;
-  readonly faqs = CLIENT_APP_FAQS;
-  readonly endpoints = CLIENT_APP_MCP_ENDPOINTS;
-  readonly baseUrl = 'https://mcp.aidouble.ai/v1/kushi-indian-restaurant';
-  readonly tabOrder: PanelId[] = ['services', 'products', 'coupons', 'about', 'reviews', 'faq', 'mcp'];
+  endpoints: any[] = [];
+  baseUrl = 'https://dev.gosure.ai/core-mcp/openai';
+  readonly tabOrder: PanelId[] = ['services', 'products', 'coupons', 'about', 'reviews', 'faq'];
 
   activeSection: PanelId = 'services';
-  activeCategory = 'all';
   modalOpen = false;
   orderSubmitted = false;
   orderSubmitting = false;
   confirmationCode = '';
   orderErrorMessage = '';
-  selectedItem: any = null;
+  selectedItem: any[] = [];
   draft: ClientOrderDraft = this.createDraft();
   menuItems: any[] = [];
   menuState: MenuLoadState = 'idle';
@@ -69,36 +71,46 @@ export class ClientAppComponent implements OnInit {
   couponPageNumber = 1;
   couponPageSize = 10;
   couponTotalRecords = 0;
-  services: ClientService[] = [];
+  services: any[] = [];
   serviceState: ServiceLoadState = 'idle';
   serviceStatusMessage: string = '';
   servicePageNumber = 1;
   servicePageSize = 10;
   serviceTotalRecords = 0;
+  reviews: any[] = [];
+  reviewState: ReviewLoadState = 'idle';
+  reviewStatusMessage: string = '';
+  faqs :any = [];
+  faqState: FaqLoadState = 'idle';
+  faqStatusMessage :string = '';
+  apiState: ApiLoadState = 'idle';
+  apiStatusMessage: string = '';
+  aboutApiResponse: ClientRawApiResponse | null = null;
+  aboutRecord: any = [];
+  aboutState: AboutLoadState = 'idle';
+  aboutStatusMessage: string = '';
   dataset: string = '';
-  businessName: string = '';
-  matchedInstance: any = null;
+  businessRouteUrl: string = '';
+  matchedInstance: any = [];
   businessExists: boolean = true;
   isCheckingBusiness: boolean = true;
   businessStatusMessage: string = '';
   currentjobinstanceid: string = '';
   currentBusinessEmail: string = '';
+  currentBusinessName: string = '';
   @ViewChild('contentTop') contentTop?: ElementRef<HTMLElement>;
-  private readonly pendingTasks = inject(PendingTasks);
-  private readonly document = inject(DOCUMENT);
-  private readonly jsonLdScriptId = 'aidouble-jsonld';
 
   constructor(
     private route: ActivatedRoute,
     private clientAppApiService: ClientAppApiService,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.dataset = 'Business';
-      this.businessName = params.get('slug') ?? '';
-      this.pendingTasks.run(() => this.initializeBusiness());
+      this.businessRouteUrl = params.get('slug') ?? '';
+      void this.initializeBusiness();
     });
   }
 
@@ -107,18 +119,6 @@ export class ClientAppComponent implements OnInit {
       ...CLIENT_APP_BUSINESS,
       menuCountLabel: `${this.menuItems.length}+`,
     };
-  }
-
-  get menuCategories(): string[] {
-    const categories = this.menuItems.map((item) => item['data']['Product SubCategory']).filter(Boolean);
-    return [...new Set(categories)];
-  }
-
-  get filteredMenuItems(): any[] {
-    if (this.activeCategory === 'all') {
-      return this.menuItems;
-    }
-    return this.menuItems.filter((item) => item['data']['Product SubCategory'] === this.activeCategory);
   }
 
   get openStatus(): string {
@@ -143,12 +143,8 @@ export class ClientAppComponent implements OnInit {
     }
   }
 
-  setActiveCategory(category: string): void {
-    this.activeCategory = category;
-  }
-
-  openOrder(selectedItem?: any): void {
-    this.selectedItem = selectedItem ?? null;
+  openOrder(selectedItem?: any[]): void {
+    this.selectedItem = selectedItem ?? [];
     this.modalOpen = true;
     this.orderSubmitted = false;
     this.orderSubmitting = false;
@@ -176,12 +172,10 @@ export class ClientAppComponent implements OnInit {
       );
       this.menuItems = result.items;
       this.menuTotalRecords = result.totalRecords;
-      this.activeCategory = 'all';
       this.menuState = 'success';
       this.menuStatusMessage = `Menu loaded from API with ${this.menuItems.length} items.`;
     } catch (error) {
       this.menuItems = [];
-      this.activeCategory = 'all';
       this.menuState = 'error';
       this.menuStatusMessage = this.clientAppApiService.getErrorMessage(error, 'Unable to load menu from API.');
     } finally {
@@ -236,6 +230,107 @@ export class ClientAppComponent implements OnInit {
     }
   }
 
+  async loadReviews(): Promise<void> {
+    this.reviewState = 'loading';
+    this.reviewStatusMessage = 'Fetching reviews from API...';
+
+    try {
+      const result = await this.clientAppApiService.loadReviews(
+        this.currentBusinessEmail, 1, 10);
+      this.reviews = result.items ?? [];
+      this.reviewState = 'success';
+      this.reviewStatusMessage = this.reviews.length
+        ? `Reviews loaded from API: ${this.reviews.length}.`
+        : 'No reviews available right now.';
+    } catch (error) {
+      this.reviews = [];
+      this.reviewState = 'error';
+      this.reviewStatusMessage = this.clientAppApiService.getErrorMessage(error, 'Unable to load reviews from API.');
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  async loadAboutProfile(): Promise<void> {
+    this.aboutState = 'loading';
+    this.aboutStatusMessage = 'Fetching about details from API...';
+
+    try {
+      this.aboutApiResponse = await this.clientAppApiService.loadBusinessIntentClustersRaw(
+        this.currentBusinessEmail,
+        1,
+        10,
+      );
+      this.aboutRecord = Array.isArray(this.aboutApiResponse?.['jobs'])
+        ? (this.aboutApiResponse?.['jobs'] as any[])[0] ?? []
+        : [];
+      this.aboutState = 'success';
+      this.aboutStatusMessage = this.aboutRecord
+        ? 'About details loaded from API.'
+        : 'API returned successfully, but no Business Intent Clusters records were found.';
+    } catch (error) {
+      this.aboutApiResponse = null;
+      this.aboutRecord = [];
+      this.aboutState = 'error';
+      this.aboutStatusMessage = this.clientAppApiService.getErrorMessage(
+        error,
+        'Unable to load about details from API.',
+      );
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  async loadFaqs(): Promise<void> {
+    this.faqState = 'loading';
+    this.faqStatusMessage = 'Fetching FAQs from API...';
+
+    try {
+      const result = await this.clientAppApiService.loadFaqs(
+        this.currentBusinessEmail,
+        1,
+        10,
+      );
+      this.faqs = result.items[0];
+      this.faqState = 'success';
+      this.faqStatusMessage = result.items.length
+        ? `FAQs loaded from API: ${result.items.length}.`
+        : 'No FAQs returned from API. Showing fallback content.';
+    } catch (error) {
+      this.faqs = CLIENT_APP_FAQS;
+      this.faqState = 'error';
+      this.faqStatusMessage = this.clientAppApiService.getErrorMessage(
+        error,
+        'Unable to load FAQs from API. Showing fallback content.',
+      );
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+
+  async loadApis(): Promise<void> {
+    this.apiState = 'loading';
+    this.apiStatusMessage = 'Fetching APIs from API...';
+
+    try {
+      const result = await this.clientAppApiService.loadApis(this.currentBusinessEmail, 1, 10);
+      this.endpoints = result.items;
+      this.apiState = 'success';
+      this.apiStatusMessage = result.items.length
+        ? `APIs loaded from API: ${result.items.length}.`
+        : 'No API records returned from API. Showing fallback endpoints.';
+    } catch (error) {
+      this.endpoints = [];
+      this.apiState = 'error';
+      this.apiStatusMessage = this.clientAppApiService.getErrorMessage(
+        error,
+        'Unable to load APIs from API. Showing fallback endpoints.',
+      );
+    } finally {
+      this.cdr.markForCheck();
+    }
+  }
+  
   onMenuPageChange(pageNumber: number): void {
     this.menuPageNumber = pageNumber;
     void this.loadMenu();
@@ -310,7 +405,6 @@ export class ClientAppComponent implements OnInit {
       customerPhone: '',
       deliveryAddress: '',
       fulfilment: 'pickup',
-      spiceLevel: item?.spiceLevel ?? 2,
       quantity: 1,
     };
   }
@@ -319,10 +413,10 @@ export class ClientAppComponent implements OnInit {
     this.isCheckingBusiness = true;
     this.businessExists = true;
     this.businessStatusMessage = '';
-    this.matchedInstance = null;
+    this.matchedInstance = [];
     this.resetPaginationState();
 
-    if (!this.dataset.trim() || !this.businessName.trim()) {
+    if (!this.dataset.trim() || !this.businessRouteUrl.trim()) {
       this.businessExists = false;
       this.businessStatusMessage = 'Business not exist.';
       this.resetContentState();
@@ -331,7 +425,7 @@ export class ClientAppComponent implements OnInit {
     }
 
     try {
-      const business = await this.clientAppApiService.findInstanceByName(this.dataset, this.businessName);
+      const business = await this.clientAppApiService.findInstanceByName(this.dataset, this.businessRouteUrl);
       if (!business) {
         this.businessExists = false;
         this.businessStatusMessage = 'Business not exist.';
@@ -341,14 +435,18 @@ export class ClientAppComponent implements OnInit {
 
       this.matchedInstance = business;
       this.currentjobinstanceid = this.matchedInstance['jobInstanceId'];
-      this.currentBusinessEmail = this.matchedInstance.data['Work Email'];
+      this.currentBusinessEmail = this.matchedInstance?.data?.['Business Email'] || this.matchedInstance?.data?.['Work Email'] || '';
+      this.currentBusinessName = this.matchedInstance.data['Business Name'];
       this.businessExists = true;
       await Promise.all([
         this.loadServices(),
         this.loadMenu(),
         this.loadCoupons(),
+        this.loadReviews(),
+        this.loadFaqs(),
+        this.loadApis(),
+        this.loadAboutProfile(),
       ]);
-      this.injectJsonLd();
     } catch (error) {
       this.businessExists = false;
       this.businessStatusMessage = this.clientAppApiService.getErrorMessage(
@@ -366,16 +464,29 @@ export class ClientAppComponent implements OnInit {
     this.menuItems = [];
     this.coupons = [];
     this.services = [];
+    this.reviews = [];
+    this.faqs = CLIENT_APP_FAQS;
     this.menuTotalRecords = 0;
     this.couponTotalRecords = 0;
     this.serviceTotalRecords = 0;
-    this.matchedInstance = null;
+    this.aboutApiResponse = null;
+    this.aboutRecord = [];
+    this.matchedInstance = [];
+    this.endpoints = [];
     this.menuState = 'idle';
     this.couponState = 'idle';
     this.serviceState = 'idle';
+    this.reviewState = 'idle';
+    this.faqState = 'idle';
+    this.apiState = 'idle';
+    this.aboutState = 'idle';
     this.menuStatusMessage = '';
     this.couponStatusMessage = '';
     this.serviceStatusMessage = '';
+    this.reviewStatusMessage = '';
+    this.faqStatusMessage = '';
+    this.apiStatusMessage = '';
+    this.aboutStatusMessage = '';
   }
 
   private resetPaginationState(): void {
@@ -385,64 +496,6 @@ export class ClientAppComponent implements OnInit {
     this.menuTotalRecords = 0;
     this.couponTotalRecords = 0;
     this.serviceTotalRecords = 0;
-  }
-
-  private injectJsonLd(): void {
-    const data = this.matchedInstance?.data ?? {};
-    const businessName: string = data['Business Name'] || data['Name'] || this.businessName;
-    const address: string = data['Address'] || data['Business Address'] || '';
-    const phone: string = data['Phone'] || data['Business Phone'] || '';
-    const email: string = data['Work Email'] || data['Business Email'] || '';
-    const website: string = data['Website'] || data['Website Route Url'] || '';
-
-    const menuItems = this.menuItems.map((item) => {
-      const d = item?.data ?? {};
-      return {
-        '@type': 'MenuItem',
-        name: d['Product Name'] || d['Name'] || '',
-        description: d['Description'] || d['Product Description'] || '',
-        offers: {
-          '@type': 'Offer',
-          price: d['Price'] ?? '',
-          priceCurrency: d['Currency'] || 'USD',
-        },
-      };
-    });
-
-    const services = this.services.map((service: any) => ({
-      '@type': 'Service',
-      name: service?.data?.['Service Name'] || service?.data?.['Name'] || '',
-      description: service?.data?.['Description'] || '',
-    }));
-
-    const jsonLd: Record<string, unknown> = {
-      '@context': 'https://schema.org',
-      '@type': 'Restaurant',
-      name: businessName,
-      url: typeof window !== 'undefined' ? window.location.href : `https://aidouble.ai/${this.businessName}`,
-      address: address ? { '@type': 'PostalAddress', streetAddress: address } : undefined,
-      telephone: phone || undefined,
-      email: email || undefined,
-      sameAs: website ? [website] : undefined,
-      hasMenu: menuItems.length
-        ? {
-            '@type': 'Menu',
-            hasMenuSection: { '@type': 'MenuSection', name: 'Menu', hasMenuItem: menuItems },
-          }
-        : undefined,
-      makesOffer: services.length ? services : undefined,
-    };
-
-    Object.keys(jsonLd).forEach((key) => jsonLd[key] === undefined && delete jsonLd[key]);
-
-    const existing = this.document.getElementById(this.jsonLdScriptId);
-    existing?.remove();
-
-    const script = this.document.createElement('script');
-    script.type = 'application/ld+json';
-    script.id = this.jsonLdScriptId;
-    script.textContent = JSON.stringify(jsonLd);
-    this.document.head.appendChild(script);
   }
 
   private scrollToSectionContent(): void {

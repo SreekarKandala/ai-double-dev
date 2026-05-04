@@ -4,44 +4,52 @@
     <h2 class="k-section-head__title">What Guests <em>Say</em></h2>
   </div>
 
-  <div class="k-reviews__grid">
-    <aside class="k-review-summary">
-      <div class="k-review-summary__headline">
-        <div class="k-review-summary__score">4.1</div>
-        <div class="k-review-summary__stars">*****</div>
-      </div>
-      <div class="k-review-summary__count">13 Yelp reviews</div>
+  <div class="summary-grid">
+    <div class="card highlight">
+      <h3>★ {{ reviews[0]?.['data']?.['Average rating overall'] }}</h3>
+      <p>Average Rating</p>
+    </div>
 
-      <div class="k-review-bar" *ngFor="let row of ratingRows">
-        <span>{{ row.label }}</span>
-        <div><i [style.width.%]="row.value"></i></div>
-        <strong>{{ row.value }}%</strong>
-      </div>
+    <div class="card">
+      <h3>{{ reviews[0]?.['data']?.['Total reviews count '] }}</h3>
+      <p>Total Reviews</p>
+    </div>
 
-      <div class="k-review-alert">
-        <span>Review Volume Alert</span>
-        <strong>Only 13</strong>
-        <p>AI assistants usually deprioritize low-review businesses, which is why the page frames structured data as the unlock.</p>
-      </div>
-    </aside>
+    <div class="card">
+      <h3>{{ reviews[0]?.['data']?.['Platform Consistency Score'] }}</h3>
+      <p>Consistency Score</p>
+    </div>
 
-    <div class="k-review-list">
-      <article class="k-review-card" *ngFor="let review of reviews">
-        <div class="k-review-card__head">
-          <div class="k-review-card__user">
-            <div class="k-review-card__avatar" [style.background]="review.avatarColor">{{ review.initials }}</div>
-            <div>
-              <strong>{{ review.name }}</strong>
-              <span [style.color]="review.sourceColor" [style.background]="review.sourceBg">via {{ review.source }}</span>
-            </div>
-          </div>
-          <div class="k-review-card__meta">
-            <strong>*****</strong>
-            <small>{{ review.dateLabel }}</small>
-          </div>
+    <div class="card">
+      <h3>{{ reviews[0]?.['data']?.['Rating Variance'] }}</h3>
+      <p>Rating Variance</p>
+    </div>
+  </div>
+
+  <div class="platform-section">
+    <div class="platform-section__head">
+      <h2>Platform Ratings</h2>
+      <p>How guests rate the business across review platforms.</p>
+    </div>
+
+    <div class="platform-grid">
+      <div class="card platform" *ngFor="let app of reviews[0]?.['data']?.['App Name']; let i = index">
+        <div class="platform__top">
+          <h3>{{ app }}</h3>
+          <span class="platform__badge">{{ reviews[0]?.['data']?.['App Rating']?.[i] }}/5</span>
         </div>
-        <p>{{ review.text }}</p>
-      </article>
+        <p class="platform__rating">★ {{ reviews[0]?.['data']?.['App Rating']?.[i] }}</p>
+        <span class="platform__reviews">{{ reviews[0]?.['data']?.['App Review Count']?.[i] }} reviews</span>
+      </div>
+
+      <div class="card platform" *ngIf="reviews[0]?.['data']?.['Other Platforms']">
+        <div class="platform__top">
+          <h3>{{ reviews[0]?.['data']?.['Other Platforms'] }}</h3>
+          <span class="platform__badge">{{ reviews[0]?.['data']?.['Other Platforms Rating'] }}/5</span>
+        </div>
+        <p class="platform__rating">★ {{ reviews[0]?.['data']?.['Other Platforms Rating'] }}</p>
+        <span class="platform__reviews">{{ reviews[0]?.['data']?.['Other Platforms Reviews Count'] }} reviews</span>
+      </div>
     </div>
   </div>
 </section>

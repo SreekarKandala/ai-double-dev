@@ -21,30 +21,23 @@ export class ClientOrderModalComponent {
   @Output() close = new EventEmitter<void>();
   @Output() submit = new EventEmitter<void>();
 
-  readonly spiceLevels = [
-    { value: 0, icon: '🌿', label: 'Mild' },
-    { value: 1, icon: '🌶️', label: 'Med' },
-    { value: 2, icon: '🌶️🌶️', label: 'Hot' },
-    { value: 3, icon: '🔥', label: 'Extra' },
-    { value: 4, icon: '🔥🔥', label: 'Fire' },
-  ];
-
   readonly fulfilmentOptions = [
     { value: 'pickup', icon: '🏪', label: 'Pickup' },
-    { value: 'delivery-same', icon: '⚡', label: 'Same Day' },
     { value: 'delivery-next', icon: '📦', label: 'Delivery' },
   ] as const;
 
   get total(): number {
-    return ((this.selectedItem?.data?.['Price'] as number) || 0) * this.draft.quantity;
+    const rawPrice = this.selectedItem['data']['Price']?.toString().replace(/[^0-9.]/g, '') || '0';
+    const price = parseFloat(rawPrice);
+    return (price || 0) * this.draft.quantity;
   }
 
   get etaText(): string {
     if (this.draft.fulfilment === 'pickup') {
       return 'Ready in about 25 minutes.';
     }
-    if (this.draft.fulfilment === 'delivery-same') {
-      return 'Arriving in about 45 minutes.';
+    if (this.draft.fulfilment === 'delivery-next') {
+      return 'Arriving in about 35 minutes.';
     }
     return 'Arriving tomorrow.';
   }
@@ -57,3 +50,4 @@ export class ClientOrderModalComponent {
     this.submit.emit();
   }
 }
+

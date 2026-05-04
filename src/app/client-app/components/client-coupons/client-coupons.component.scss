@@ -61,12 +61,14 @@
 
 .k-coupon-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 520px));
-  justify-content: start;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
   gap: 20px;
+  align-items: stretch;
 }
 
 .k-coupon-card {
+  width: 100%;
+  max-width: 640px;
   border: 1px solid #d8cfc0;
   border-radius: 30px;
   padding: 24px 24px 20px;
@@ -287,6 +289,10 @@
 @media (max-width: 768px) {
   .k-coupon-grid {
     grid-template-columns: 1fr;
+  }
+
+  .k-coupon-card {
+    max-width: none;
   }
 
   .k-pagination {

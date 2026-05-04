@@ -1,7 +1,5 @@
-// Endpoints below are intentionally public (the upstream gosure API exposes them
-// under /accessible/api/v1/... and /api/v1/public/...). Cokube's HTTP interceptor
-// whitelists these URLs to skip auth attachment. Do NOT add an Authorization
-// header here — the backend ignores it and there's no auth contract today.
+// Endpoints below are intentionally public; cokube's interceptor whitelists them.
+// Do not add an Authorization header — the backend ignores it.
 import { Injectable } from '@angular/core';
 import { ClientOrderDraft } from '../models/client-app.models';
 
@@ -20,6 +18,10 @@ const GOSURE_JSON_HEADERS: HeadersInit = {
 export interface ClientAppPage<T> {
   items: T[];
   totalRecords: number;
+}
+
+export interface ClientRawApiResponse {
+  [key: string]: unknown;
 }
 
 @Injectable({
@@ -47,6 +49,38 @@ export class ClientAppApiService {
 
   loadServices(businessEmail: string, pageNumber: number, pageSize: number, dataset = 'Services'): Promise<ClientAppPage<any>> {
     return this.loadInstances(dataset, (job) => job, this.buildBusinessEmailFilters(businessEmail), pageNumber, pageSize);
+  }
+
+  loadReviews(businessEmail: string, pageNumber: number, pageSize: number, dataset = 'Reviews'): Promise<ClientAppPage<any>> {
+    return this.loadInstances(dataset, (job) => job, this.buildBusinessEmailFilters(businessEmail), pageNumber, pageSize);
+  }
+
+  loadFaqs(businessEmail: string, pageNumber: number, pageSize: number, dataset = "FAQ's"): Promise<ClientAppPage<any>> {
+    return this.loadInstances(dataset, (job) => job, this.buildBusinessEmailFilters(businessEmail), pageNumber, pageSize);
+  }
+
+  loadApis(businessEmail: string, pageNumber: number, pageSize: number, dataset = 'APIs'): Promise<ClientAppPage<any>> {
+    return this.loadInstances(dataset, (job) => job, this.buildBusinessEmailFilters(businessEmail),pageNumber, pageSize,);
+  }
+
+  async loadBusinessIntentClustersRaw(
+    businessEmail: string,
+    pageNumber = 1,
+    pageSize = 10,
+    dataset = 'Business Intent Clusters',
+  ): Promise<ClientRawApiResponse> {
+      const response = await this.fetchDatasetInstances(
+        dataset,
+        this.buildBusinessEmailFilters(businessEmail),
+        pageNumber,
+        pageSize,
+      );
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    return (await response.json()) as ClientRawApiResponse;
   }
 
   async submitOrder(selectedItem: any | null, draft: ClientOrderDraft): Promise<string> {
@@ -140,7 +174,13 @@ export class ClientAppApiService {
     return decodeURIComponent(value).trim().toLowerCase();
   }
 
+  extractBaseUrl(source: unknown): string | null {
+    return this.readString(source, ['Base URL', 'Base Url', 'BaseURL', 'Server URL', 'Server Url', 'Host', 'Domain']);
+  }
+
   private buildOrderPayload(selectedItem: any | null, draft: ClientOrderDraft): { data: Record<string, string>; jobTypeId: string } {
+    const cleanPrice = String(selectedItem?.data['Price'] || '0').replace(/[^0-9.]/g, '');
+    const pricePerItem = parseFloat(cleanPrice) || 0;
     const orderData: Record<string, string> = {
       'Customer Name': draft.customerName.trim(),
       Email: draft.customerEmail.trim(),
@@ -149,8 +189,7 @@ export class ClientAppApiService {
       'Date & Time': this.getRequestedDateTime(draft),
       Category: this.stripBracketValue(selectedItem?.data['Category']),
       Quantity: String(draft.quantity),
-      Amount: this.formatAmount((selectedItem?.data['Price'] || 0) * draft.quantity),
-      'Spice Level': this.getSpiceLevelLabel(draft.spiceLevel),
+      Amount: this.formatAmount(pricePerItem * draft.quantity),
       'Business Name': this.stripBracketValue(selectedItem?.data['Business Name']),
       'Business Email': selectedItem?.data['Business Email'],
       'Delivery Address': draft.deliveryAddress.trim(),
@@ -190,22 +229,12 @@ export class ClientAppApiService {
     return this.readString(error, ['message', 'error', 'statusMessage']) || '';
   }
 
-  private getSpiceLevelLabel(level: number): string {
-    if (level <= 0) {
-      return 'Mild';
-    }
-    if (level <= 2) {
-      return 'Medium';
-    }
-    return 'Hot';
-  }
-
   private getRequestedDateTime(draft: ClientOrderDraft): string {
     const requestedAt = new Date();
 
     if (draft.fulfilment === 'pickup') {
       requestedAt.setMinutes(requestedAt.getMinutes() + 25);
-    } else if (draft.fulfilment === 'delivery-same') {
+    } else if (draft.fulfilment === 'delivery-next') {
       requestedAt.setMinutes(requestedAt.getMinutes() + 45);
     } else {
       requestedAt.setDate(requestedAt.getDate() + 1);
@@ -247,7 +276,7 @@ export class ClientAppApiService {
     }
 
     const record = source as Record<string, unknown>;
-    const candidates: unknown[] = [record, record['data'], record['jobData'], record['attributes'], record['payload']];
+    const candidates: unknown[] = [record, record.data, record.jobData, record.attributes, record.payload];
 
     for (const candidate of candidates) {
       if (!candidate || typeof candidate !== 'object') {
@@ -260,7 +289,7 @@ export class ClientAppApiService {
       }
     }
 
-    const collections = [record['fields'], record['attributes'], record['customFields'], record['values']];
+    const collections = [record.fields, record.attributes, record.customFields, record.values];
 
     for (const collection of collections) {
       if (!Array.isArray(collection)) {
@@ -273,7 +302,7 @@ export class ClientAppApiService {
         }
 
         const item = entry as Record<string, unknown>;
-        const fieldName = [item['fieldName'], item['name'], item['key'], item['label'], item['attributeName']]
+        const fieldName = [item.fieldName, item.name, item.key, item.label, item.attributeName]
           .find((value) => typeof value === 'string')
           ?.toString()
           .trim()
@@ -285,7 +314,7 @@ export class ClientAppApiService {
 
         const matches = keys.some((key) => key.toLowerCase() === fieldName);
         if (matches) {
-          return item['value'] ?? item['fieldValue'] ?? item['displayValue'] ?? null;
+          return item.value ?? item.fieldValue ?? item.displayValue ?? null;
         }
       }
     }

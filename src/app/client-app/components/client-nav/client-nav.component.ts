@@ -21,7 +21,6 @@ export class ClientNavComponent {
     { id: 'about', label: 'About' },
     { id: 'reviews', label: 'Reviews' },
     { id: 'faq', label: 'FAQ' },
-    { id: 'mcp', label: 'MCP API' },
   ];
 
   get formattedLocation(): string {

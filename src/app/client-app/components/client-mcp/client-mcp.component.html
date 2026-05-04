@@ -1,34 +1,39 @@
-<section>
-  <div class="k-section-head">
+<section class="k-mcp-shell">
+  <!-- <div class="k-section-head">
     <div class="k-section-head__eyebrow">07 / MCP Endpoints</div>
     <h2 class="k-section-head__title">AI Double <em>API Reference</em></h2>
-    <p class="k-section-head__sub">These endpoint cards mirror the proposed MCP story from the original HTML.</p>
-  </div>
+    <p class="k-section-head__sub">Static MCP cards for the new UI. You can replace this mock data with live API fields next.</p>
+  </div> -->
 
   <div class="k-mcp-grid">
-    <article class="k-mcp-card" *ngFor="let endpoint of endpoints">
-      <div class="k-mcp-card__row">
-        <span class="k-mcp-card__method" [class.is-post]="endpoint.method === 'POST'">{{ endpoint.method }}</span>
-        <code>{{ baseUrl }}{{ endpoint.endpoint }}</code>
-      </div>
-      <h3>{{ endpoint.name }}</h3>
-      <p>{{ endpoint.description }}</p>
+    <article class="k-mcp-card" *ngFor="let endpoint of endpoints; trackBy: trackByEndpoint">
+      <header class="k-mcp-card__header">
+        <span class="k-mcp-card__method">{{ endpoint.data['API Call Type'] }}</span>
+        <div class="k-mcp-card__url">{{ baseUrl }}{{ endpoint.data['Endpoint Called'] }}</div>
+      </header>
 
-      <div class="k-mcp-param" *ngFor="let param of endpoint.params">
-        <span>{{ param.name }}</span>
-        <small>{{ param.type }}</small>
-        <p>{{ param.description }}</p>
-        <strong *ngIf="param.required">required</strong>
-      </div>
+      <div class="k-mcp-card__body">
+        <h3 class="k-mcp-card__title">{{ endpoint.data['Use Case'] }}</h3>
+        <p class="k-mcp-card__description">{{ endpoint.data['Endpoint Description'] }}</p>
 
-      <div class="k-mcp-card__note">{{ endpoint.note }}</div>
+        <div class="k-mcp-card__params">
+          <div class="k-mcp-param" *ngFor="let param of endpoint.data['Field Name']; let i = index">
+            <div class="k-mcp-param__head">
+              <div class="k-mcp-param__meta">
+                <span class="k-mcp-param__name">{{ param }}</span>
+                <span class="k-mcp-param__type">{{ endpoint.data['Field Type'][i] }}</span>
+              </div>
+              <span *ngIf="endpoint.data['IsRequired'][i] === 'True'" class="k-mcp-param__required">required</span>
+            </div>
+            <p class="k-mcp-param__description">{{ endpoint.data['Field Description'][i] }}</p>
+          </div>
+        </div>
+
+        <div class="k-mcp-card__note" *ngIf="endpoint.data['Note']">
+          <span class="k-mcp-card__note-icon">💡</span>
+          <p>{{ endpoint.data['Note'] }}</p>
+        </div>
+      </div>
     </article>
-  </div>
-
-  <div class="k-proposed-box">
-    <strong>Proposed MCP Base URL</strong>
-    <p>{{ baseUrl }}/</p>
-    <p>Manifest: {{ baseUrl }}/manifest.json</p>
-    <p>GEO Score today: 22/100 -> Target: 78+ after activation</p>
   </div>
 </section>
