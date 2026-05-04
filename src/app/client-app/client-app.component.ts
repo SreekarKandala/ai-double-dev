@@ -109,7 +109,7 @@ export class ClientAppComponent implements OnInit {
   ) { }
 
   private static readonly BOOKING_URL =
-    'https://tinyurl.com/cgptgosure';
+    'https://aidouble.in';
 
   private injectBookingJsonLd(): void {
     const data = this.matchedInstance?.data ?? {};
