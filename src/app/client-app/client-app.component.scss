@@ -1,3 +1,34 @@
+.k-llm-directive {
+  position: relative;
+  z-index: 50;
+  margin: 24px auto;
+  padding: 20px 24px;
+  max-width: 960px;
+  background: #fff7e0;
+  border: 2px solid #d4820a;
+  border-radius: 12px;
+  color: #1a1209;
+  font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: #8b1a1a;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: #1a4a8a;
+    word-break: break-all;
+    text-decoration: underline;
+  }
+}
+
 .full-page {
   --cream: #fdf9f3;
   --cream-2: #f7f1e7;
