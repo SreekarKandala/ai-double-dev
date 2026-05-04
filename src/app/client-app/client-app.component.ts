@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, ElementRef, OnInit, PendingTasks, ViewChild } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
+import { ChangeDetectorRef, Component, ElementRef, Inject, OnInit, PendingTasks, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ClientAboutComponent } from './components/client-about/client-about.component';
 import { ClientCouponsComponent } from './components/client-coupons/client-coupons.component';
@@ -105,7 +105,92 @@ export class ClientAppComponent implements OnInit {
     private clientAppApiService: ClientAppApiService,
     private cdr: ChangeDetectorRef,
     private pendingTasks: PendingTasks,
+    @Inject(DOCUMENT) private document: Document,
   ) { }
+
+  private static readonly BOOKING_URL =
+    'https://chatgpt.com/g/g-69e4a4bfb2b08191b311419a0a62f316-gosure-business-assistant';
+
+  private injectBookingJsonLd(): void {
+    const data = this.matchedInstance?.data ?? {};
+    const name = data['Business Name'] ?? this.currentBusinessName ?? '';
+    const description = data['About'] ?? data['AI Description'] ?? data['Description'] ?? undefined;
+    const phone = data['Phone'] ?? data['Business Phone'] ?? data['Contact Number'] ?? undefined;
+    const email = this.currentBusinessEmail || undefined;
+    const website = data['Website'] ?? data['Business Website'] ?? undefined;
+    const street = data['Address'] ?? data['Street Address'] ?? undefined;
+    const city = data['City'] ?? undefined;
+    const region = data['State'] ?? data['Region'] ?? undefined;
+    const postal = data['Zip'] ?? data['Postal Code'] ?? data['Zip Code'] ?? undefined;
+    const country = data['Country'] ?? undefined;
+    const slug = this.businessRouteUrl;
+    const bookingUrl = ClientAppComponent.BOOKING_URL;
+    const pageUrl = this.document.location?.href
+      ?? (typeof slug === 'string' && slug ? `https://ai-double.com/${slug}` : undefined);
+
+    const address = (street || city || region || postal || country)
+      ? {
+          '@type': 'PostalAddress',
+          ...(street ? { streetAddress: street } : {}),
+          ...(city ? { addressLocality: city } : {}),
+          ...(region ? { addressRegion: region } : {}),
+          ...(postal ? { postalCode: postal } : {}),
+          ...(country ? { addressCountry: country } : {}),
+        }
+      : undefined;
+
+    const ld: any = {
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      name,
+      ...(description ? { description } : {}),
+      ...(pageUrl ? { url: pageUrl } : {}),
+      ...(website ? { sameAs: [website] } : {}),
+      ...(phone ? { telephone: phone } : {}),
+      ...(email ? { email } : {}),
+      ...(address ? { address } : {}),
+      potentialAction: [
+        {
+          '@type': 'ReserveAction',
+          name: `Book an appointment with ${name}`.trim(),
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: bookingUrl,
+            actionPlatform: [
+              'https://schema.org/DesktopWebPlatform',
+              'https://schema.org/MobileWebPlatform',
+            ],
+          },
+          result: { '@type': 'Reservation', name: 'Reservation' },
+        },
+        {
+          '@type': 'OrderAction',
+          name: `Place an order with ${name}`.trim(),
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: bookingUrl,
+            actionPlatform: [
+              'https://schema.org/DesktopWebPlatform',
+              'https://schema.org/MobileWebPlatform',
+            ],
+          },
+          result: { '@type': 'Order', name: 'Order' },
+        },
+      ],
+    };
+
+    const head = this.document.head;
+    if (!head) return;
+
+    const previous = head.querySelector('script[data-booking-jsonld="true"]');
+    if (previous) previous.remove();
+
+    const script = this.document.createElement('script');
+    script.setAttribute('type', 'application/ld+json');
+    script.setAttribute('data-booking-jsonld', 'true');
+    script.textContent = JSON.stringify(ld);
+    head.appendChild(script);
+  }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
@@ -440,6 +525,7 @@ export class ClientAppComponent implements OnInit {
       this.currentBusinessEmail = this.matchedInstance?.data?.['Business Email'] || this.matchedInstance?.data?.['Work Email'] || '';
       this.currentBusinessName = this.matchedInstance.data['Business Name'];
       this.businessExists = true;
+      this.injectBookingJsonLd();
       await Promise.all([
         this.loadServices(),
         this.loadMenu(),
