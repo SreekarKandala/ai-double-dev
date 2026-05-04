@@ -109,7 +109,7 @@ export class ClientAppComponent implements OnInit {
   ) { }
 
   private static readonly BOOKING_URL =
-    'https://chatgpt.com/g/g-69e4a4bfb2b08191b311419a0a62f316-gosure-business-assistant';
+    'https://tinyurl.com/cgptgosure';
 
   private injectBookingJsonLd(): void {
     const data = this.matchedInstance?.data ?? {};
